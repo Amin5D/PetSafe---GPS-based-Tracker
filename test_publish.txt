@@ -1,0 +1,3 @@
+mosquitto_pub -h localhost -t gps/data -m '{"lat":51.5074,"lon":-0.1278,"name":"Publisher1","icon":"male","color":"#000"}'
+mosquitto_pub -h localhost -t gps/data2 -m '{"lat":51.5074,"lon":-0.1278,"name":"Publisher2","icon":"male","color":"#ff0000"}'
+

@@ -1,0 +1,23 @@
+[
+    {
+        "id": "1e4eeaf65910f427",
+        "type": "function",
+        "z": "0dbf2975414965d8",
+        "name": "Get GPS Data 1",
+        "func": "var gpsData1 = flow.get('gpsData1');\nif (gpsData1) {\n    return {payload: gpsData1};\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 440,
+        "wires": [
+            [
+                "a0e21964bf998307",
+                "d4e16b218351ec91"
+            ]
+        ]
+    }
+]

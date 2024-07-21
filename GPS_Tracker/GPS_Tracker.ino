@@ -1,10 +1,10 @@
 #include "TinyGPS++.h"
 
-//#define RXD2 16 
-//#define TXD2 17
+#define RXD2 16 
+#define TXD2 17
 
-#define RXD2 32
-#define TXD2 33
+//#define RXD2 32
+//#define TXD2 17
 
 // The TinyGPS++ object
 TinyGPSPlus gps;
