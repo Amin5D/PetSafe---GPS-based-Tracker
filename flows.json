@@ -1,23 +1,56 @@
 [
     {
-        "id": "1e4eeaf65910f427",
-        "type": "function",
-        "z": "0dbf2975414965d8",
-        "name": "Get GPS Data 1",
-        "func": "var gpsData1 = flow.get('gpsData1');\nif (gpsData1) {\n    return {payload: gpsData1};\n}\nreturn null;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 800,
+        "id": "a231167be5028e3f",
+        "type": "ui_worldmap",
+        "z": "f63df4381f0d586e",
+        "group": "b5e70fdbfbab3020",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "lat": "52.45724",
+        "lon": "13.52694",
+        "zoom": "17",
+        "layer": "OSMC",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "hide",
+        "layers": "hide",
+        "panit": "true",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "true",
+        "coords": "none",
+        "showgrid": "true",
+        "allowFileDrop": "false",
+        "path": "/worldmap",
+        "overlist": "DR,CO,RA,DN,HM",
+        "maplist": "OSMG,OSMC,EsriC,EsriS,EsriT,EsriO,EsriDG,NatGeo,UKOS,OpTop",
+        "mapname": "",
+        "mapurl": "",
+        "mapopt": "",
+        "mapwms": false,
+        "x": 1050,
         "y": 440,
-        "wires": [
-            [
-                "a0e21964bf998307",
-                "d4e16b218351ec91"
-            ]
-        ]
+        "wires": []
+    },
+    {
+        "id": "b5e70fdbfbab3020",
+        "type": "ui_group",
+        "z": "f63df4381f0d586e",
+        "name": "Default",
+        "tab": "63ef06e3e77d33f3",
+        "order": 1,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "63ef06e3e77d33f3",
+        "type": "ui_tab",
+        "z": "f63df4381f0d586e",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
     }
 ]
