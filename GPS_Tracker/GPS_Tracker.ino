@@ -1,87 +1,99 @@
-#include "TinyGPS++.h"
+#include <TinyGPS++.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
-#define RXD2 16 
-#define TXD2 17
+// WiFi and MQTT broker credentials
+const char* ssid = "Z 4 hotspot";
+const char* password = "cvlk0930";
+const char* mqtt_server = "192.168.155.113";
 
-//#define RXD2 32
-//#define TXD2 17
 
-// The TinyGPS++ object
 TinyGPSPlus gps;
+WiFiClient espClient;
+PubSubClient client(espClient);
 
+HardwareSerial ss(1);
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
-  Serial2.begin(9800, SERIAL_8N1, RXD2, TXD2);
-  
-  Serial.println(F("DeviceExample.ino"));
-  Serial.println(F("A simple demonstration of TinyGPS++ with an attached GPS module"));
-  Serial.print(F("Testing TinyGPS++ library v. ")); Serial.println(TinyGPSPlus::libraryVersion());
-  Serial.println(F("by Mikal Hart"));
-  Serial.println();
+  ss.begin(9600, SERIAL_8N1, 16, 17); // RX, TX
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+  reconnect();
 }
 
-void loop()
-{
-  // This sketch displays information every time a new sentence is correctly encoded.
-  while (Serial2.available() > 0)
-    if (gps.encode(Serial2.read()))
-      displayInfo();
-  if (millis() > 5000 && gps.charsProcessed() < 10)
-  {
-    Serial.println(F("No GPS detected: check wiring."));
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    if (client.connect("ESP32Client")) {
+      Serial.println("connected");
+      client.subscribe("gps/request");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
   }
 }
 
-void displayInfo()
-{
-  Serial.print(F("Location: ")); 
-  if (gps.location.isValid())
-  {
-    Serial.print(gps.location.lat(), 6);
-    Serial.print(F(","));
-    Serial.print(gps.location.lng(), 6);
+void callback(char* topic, byte* payload, unsigned int length) {
+  String message;
+  for (unsigned int i = 0; i < length; i++) {
+    message += (char)payload[i];
   }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("]: ");
+  Serial.println(message);
 
-  Serial.print(F("  Date/Time: "));
-  if (gps.date.isValid())
-  {
-    Serial.print(gps.date.month());
-    Serial.print(F("/"));
-    Serial.print(gps.date.day());
-    Serial.print(F("/"));
-    Serial.print(gps.date.year());
+  if (String(topic) == "gps/request") {
+    publishGPSData();
   }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
+}
 
-  Serial.print(F(" "));
-  if (gps.time.isValid())
-  {
-    if (gps.time.hour() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.hour());
-    Serial.print(F(":"));
-    if (gps.time.minute() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.minute());
-    Serial.print(F(":"));
-    if (gps.time.second() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.second());
-    Serial.print(F("."));
-    if (gps.time.centisecond() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.centisecond());
-  }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
+void publishGPSData() {
+  while (ss.available() > 0) {
+    gps.encode(ss.read());
+    if (gps.location.isUpdated()) {
+      String latitude = String(gps.location.lat(), 6);
+      String longitude = String(gps.location.lng(), 6);
+      String payload = "{\"lat\":" + latitude + ",\"lon\":" + longitude + ",\"name\":\"Publisher1\",\"icon\":\"male\",\"color\":\"#000\"}";
+      Serial.println(payload);
 
-  Serial.println();
- 
+      if (!client.connected()) {
+        reconnect();
+      }
+      client.loop();
+
+      client.publish("gps/data", (char*) payload.c_str());
+    }
+  }
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
 }
